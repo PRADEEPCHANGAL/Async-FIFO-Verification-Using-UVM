@@ -83,7 +83,7 @@ FALLTHROUGH controls read-data behavior.
 
 ## 4. External Interface
 Write Clock Domain Interface:-
-| Signal             | Direction | Description |
+| Signal| Direction | Description |
 |---|---|---|---|
 | `wclk`             | Input     | Write-domain clock |
 | `wrst_n`           | Input     | Active-low asynchronous write-domain reset |
