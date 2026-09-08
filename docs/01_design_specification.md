@@ -83,6 +83,7 @@ FALLTHROUGH controls read-data behavior.
 
 ## 4. External Interface
 Write Clock Domain Interface:-
+
 | Signal| Direction | Description |
 |---|---|---|---|
 | `wclk`             | Input     | Write-domain clock |
@@ -93,6 +94,7 @@ Write Clock Domain Interface:-
 | `awfull`           | Output    | FIFO almost-full status in the write clock domain |
 
 Read Clock Domain Interface:-
+
 | Signal             | Direction | Description |
 |---|---|---|---|
 | `rclk`             | Input     | Read-domain clock |
