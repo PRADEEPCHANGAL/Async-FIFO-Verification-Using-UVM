@@ -28,7 +28,6 @@ The FIFO supports:
 
 The design uses a dual-clock memory and synchronized Gray-code pointers to safely determine FIFO status across unrelated clock domains.
 
----
 
 ## 2. RTL Hierarchy
 
@@ -85,6 +84,7 @@ FALLTHROUGH controls read-data behavior.
 ## 4. External Interface
 Write Clock Domain Interface:-
 | Signal             | Direction | Description |
+|---|---|---|---|
 | `wclk`             | Input     | Write-domain clock |
 | `wrst_n`           | Input     | Active-low asynchronous write-domain reset |
 | `winc`             | Input     | Write request/increment signal |
@@ -94,6 +94,7 @@ Write Clock Domain Interface:-
 
 Read Clock Domain Interface:-
 | Signal             | Direction | Description |
+|---|---|---|---|
 | `rclk`             | Input     | Read-domain clock |
 | `rrst_n`           | Input     | Active-low asynchronous read-domain reset |
 | `rinc`             | Input     | Read request/increment signal |
