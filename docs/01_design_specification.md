@@ -1,9 +1,12 @@
-| Version | Date | Author | Description |
-| 0.1     | TBD  | TBD    | Initial design specification. |
-
 # Asynchronous FIFO Design Specification
 
-**## 1. Overview**
+## Document Revision History
+
+| Version | Date | Author | Description |
+|---|---|---|---|
+| 0.1 | TBD | TBD | Initial detailed test specifications. |
+
+## 1. Overview
 
 This document describes the functional behavior and architecture of the `async_fifo` RTL design.
 
@@ -27,7 +30,7 @@ The design uses a dual-clock memory and synchronized Gray-code pointers to safel
 
 ---
 
-**## 2. RTL Hierarchy**
+## 2. RTL Hierarchy
 
 The top-level module is:
 
@@ -60,7 +63,7 @@ async_fifo
     - Written in the write clock domain
     - Read in the read clock domain
 
-**## 3. Parameters**
+## 3. Parameters
 The top-level FIFO parameters are:
 
 parameter DSIZE = 8,
@@ -79,7 +82,7 @@ FALLTHROUGH controls read-data behavior.
 "TRUE"  : First-word fall-through / combinational read mode
 "FALSE" : Registered / synchronous read mode
 
-**## 4. External Interface**
+## 4. External Interface
 Write Clock Domain Interface:-
 | Signal             | Direction | Description |
 | `wclk`             | Input     | Write-domain clock |
@@ -98,7 +101,7 @@ Read Clock Domain Interface:-
 | `rempty`           | Output    | FIFO empty status in the read clock domain |
 | `arempty`          | Output    | FIFO almost-empty status in the read clock domain |
 
-**## 5. Clocking Model**
+## 5. Clocking Model
 
 The FIFO has two independent clock domains:
 **Write Domain:**
@@ -115,13 +118,13 @@ A fixed frequency ratio
 A fixed phase relationship
 Simultaneous edges
 
-**## 6. Reset Behavior**
+## 6. Reset Behavior
 
 The design has independent active-low asynchronous resets:
 wrst_n
 rrst_n
 
-**## 7. Pointer Architecture**
+## 7. Pointer Architecture
 
 The FIFO uses separate read and write pointers.
 
@@ -182,7 +185,7 @@ After one accepted write:
 
 This distinction is required for correct full and empty detection.
 
-**## 8. Clock-Domain Crossing Synchronization**
+## 8. Clock-Domain Crossing Synchronization
 
 Read Pointer Synchronization into Write Domain, The read pointer is generated in the read clock domain but is required by the write-side full-detection logic.
 rptr
