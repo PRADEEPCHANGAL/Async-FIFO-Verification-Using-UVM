@@ -35,7 +35,6 @@ rclk period = 14 ns
 
 The different clock periods ensure that write and read clock edges are asynchronous.
 
----
 
 ## 2. Common Definitions
 
