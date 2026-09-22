@@ -64,6 +64,8 @@ async_fifo
     Dual-clock FIFO storage memory.
     - Written in the write clock domain
     - Read in the read clock domain
+```
+---
 
 ## 3. Parameters
 The top-level FIFO parameters are:
@@ -83,8 +85,7 @@ DEPTH = 2^4 = 16 entries
 FALLTHROUGH controls read-data behavior.
 "TRUE"  : First-word fall-through / combinational read mode
 "FALSE" : Registered / synchronous read mode
-```
----
+
 
 ## 4. External Interface
 Write Clock Domain Interface:-
