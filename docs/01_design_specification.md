@@ -6,6 +6,8 @@
 |---|---|---|---|
 | 0.1 | TBD | TBD | Initial detailed test specifications. |
 
+---
+
 ## 1. Overview
 
 This document describes the functional behavior and architecture of the `async_fifo` RTL design.
@@ -28,11 +30,12 @@ The FIFO supports:
 
 The design uses a dual-clock memory and synchronized Gray-code pointers to safely determine FIFO status across unrelated clock domains.
 
+---
 
 ## 2. RTL Hierarchy
 
 The top-level module is:
-
+```text
 async_fifo
 |
 +-- sync_r2w
@@ -80,6 +83,8 @@ DEPTH = 2^4 = 16 entries
 FALLTHROUGH controls read-data behavior.
 "TRUE"  : First-word fall-through / combinational read mode
 "FALSE" : Registered / synchronous read mode
+```
+---
 
 ## 4. External Interface
 Write Clock Domain Interface:-
