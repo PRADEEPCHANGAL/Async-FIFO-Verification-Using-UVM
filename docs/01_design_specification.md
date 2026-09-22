@@ -92,28 +92,26 @@ FALLTHROUGH controls read-data behavior.
 ---
 
 ## 4. External Interface
-Write Clock Domain Interface:-
-```text
-| Signal             | Direction | Description |
+### 4.1 Write Clock Domain Interface
 
-| `wclk`             | Input     | Write-domain clock |
-| `wrst_n`           | Input     | Active-low asynchronous write-domain reset |
-| `winc`             | Input     | Write request/increment signal |
-| `wdata[DSIZE-1:0]` | Input     | Data to be written into FIFO |
-| `wfull`            | Output    | FIFO full status in the write clock domain |
-| `awfull`           | Output    | FIFO almost-full status in the write clock domain |
-```
-Read Clock Domain Interface:-
-```text
-| Signal             | Direction | Description |
+| Signal | Direction | Description |
+|---|---|---|
+| `wclk` | Input | Write-domain clock |
+| `wrst_n` | Input | Active-low asynchronous write-domain reset |
+| `winc` | Input | Write request/increment signal |
+| `wdata[DSIZE-1:0]` | Input | Data to be written into FIFO |
+| `wfull` | Output | FIFO full status in the write clock domain |
+| `awfull` | Output | FIFO almost-full status in the write clock domain |
+### 4.2 Read Clock Domain Interface
 
-| `rclk`             | Input     | Read-domain clock |
-| `rrst_n`           | Input     | Active-low asynchronous read-domain reset |
-| `rinc`             | Input     | Read request/increment signal |
-| `rdata[DSIZE-1:0]` | Output    | Data output from FIFO |
-| `rempty`           | Output    | FIFO empty status in the read clock domain |
-| `arempty`          | Output    | FIFO almost-empty status in the read clock domain |
-```
+| Signal | Direction | Description |
+|---|---|---|
+| `rclk` | Input | Read-domain clock |
+| `rrst_n` | Input | Active-low asynchronous read-domain reset |
+| `rinc` | Input | Read request/increment signal |
+| `rdata[DSIZE-1:0]` | Output | Data output from FIFO |
+| `rempty` | Output | FIFO empty status in the read clock domain |
+| `arempty` | Output | FIFO almost-empty status in the read clock domain |
 ---
 ## 5. Clocking Model
 
