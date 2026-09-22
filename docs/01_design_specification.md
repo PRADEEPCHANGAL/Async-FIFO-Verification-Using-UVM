@@ -69,27 +69,31 @@ async_fifo
 
 ## 3. Parameters
 The top-level FIFO parameters are:
-
+```text
 parameter DSIZE = 8,
 parameter ASIZE = 4,
 parameter FALLTHROUGH = "TRUE"
-
+```
 DSIZE specifies the width of each FIFO data word.
 
 ASIZE specifies the number of address bits used for FIFO memory addressing.
+```text
 FIFO depth is calculated as:
 DEPTH = 2^ASIZE
 ASIZE = 4
 DEPTH = 2^4 = 16 entries
-
+```
 FALLTHROUGH controls read-data behavior.
+
+```text
 "TRUE"  : First-word fall-through / combinational read mode
 "FALSE" : Registered / synchronous read mode
-
+```
+---
 
 ## 4. External Interface
 Write Clock Domain Interface:-
-
+```text
 | Signal| Direction | Description |
 |---|---|---|---|
 | `wclk`             | Input     | Write-domain clock |
@@ -98,9 +102,9 @@ Write Clock Domain Interface:-
 | `wdata[DSIZE-1:0]` | Input     | Data to be written into FIFO |
 | `wfull`            | Output    | FIFO full status in the write clock domain |
 | `awfull`           | Output    | FIFO almost-full status in the write clock domain |
-
+```
 Read Clock Domain Interface:-
-
+```text
 | Signal             | Direction | Description |
 |---|---|---|---|
 | `rclk`             | Input     | Read-domain clock |
@@ -109,10 +113,12 @@ Read Clock Domain Interface:-
 | `rdata[DSIZE-1:0]` | Output    | Data output from FIFO |
 | `rempty`           | Output    | FIFO empty status in the read clock domain |
 | `arempty`          | Output    | FIFO almost-empty status in the read clock domain |
-
+```
+---
 ## 5. Clocking Model
 
 The FIFO has two independent clock domains:
+```text
 **Write Domain:**
     Clock : wclk
     Reset : wrst_n
@@ -120,28 +126,32 @@ The FIFO has two independent clock domains:
 **Read Domain:**
     Clock : rclk
     Reset : rrst_n
-
+```
 There is no requirement in the RTL that wclk and rclk have:
 The same frequency
 A fixed frequency ratio
 A fixed phase relationship
 Simultaneous edges
+---
 
 ## 6. Reset Behavior
 
 The design has independent active-low asynchronous resets:
+```text
 wrst_n
 rrst_n
+```
+---
 
 ## 7. Pointer Architecture
 
 The FIFO uses separate read and write pointers.
 
 Each pointer has two representations:
-
+```text
 Memory address width = ASIZE
 Pointer width        = ASIZE + 1
-
+```
 Binary pointer:
     Used locally to generate the memory address.
 
@@ -149,11 +159,12 @@ Gray-code pointer:
     Used for safe synchronization across clock domains.
     
 For the default configuration:
+```text
 ASIZE = 4
 Address width = 4 bits
 Pointer width = 5 bits
 FIFO depth = 16 entries
-
+```
 **Write Pointer**
 The write-side module wptr_full maintains:
 reg  [ADDRSIZE:0] wbin;
@@ -193,10 +204,11 @@ After one accepted write:
 1_0000 : Same memory address after one complete FIFO wrap
 
 This distinction is required for correct full and empty detection.
-
+---
 ## 8. Clock-Domain Crossing Synchronization
 
 Read Pointer Synchronization into Write Domain, The read pointer is generated in the read clock domain but is required by the write-side full-detection logic.
+```text
 rptr
   |
   | asynchronous crossing
@@ -206,9 +218,11 @@ wq1_rptr
   | one wclk cycle later
   v
 wq2_rptr
+```
 wq2_rptr is the synchronized read pointer used in the write domain.
 
 Write Pointer Synchronization into Read Domain, The write pointer is generated in the write clock domain but is required by the read-side empty-detection.
+```text
 wptr
   |
   | asynchronous crossing
@@ -218,6 +232,7 @@ rq1_wptr
   | one rclk cycle later
   v
 rq2_wptr
+```
 rq2_wptr is the synchronized write pointer used in the read domain.
 
 **Synchronization Latency**
