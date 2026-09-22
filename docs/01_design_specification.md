@@ -94,8 +94,8 @@ FALLTHROUGH controls read-data behavior.
 ## 4. External Interface
 Write Clock Domain Interface:-
 ```text
-| Signal| Direction | Description |
-|---|---|---|---|
+| Signal             | Direction | Description |
+
 | `wclk`             | Input     | Write-domain clock |
 | `wrst_n`           | Input     | Active-low asynchronous write-domain reset |
 | `winc`             | Input     | Write request/increment signal |
@@ -106,7 +106,7 @@ Write Clock Domain Interface:-
 Read Clock Domain Interface:-
 ```text
 | Signal             | Direction | Description |
-|---|---|---|---|
+
 | `rclk`             | Input     | Read-domain clock |
 | `rrst_n`           | Input     | Active-low asynchronous read-domain reset |
 | `rinc`             | Input     | Read request/increment signal |
@@ -128,10 +128,11 @@ The FIFO has two independent clock domains:
     Reset : rrst_n
 ```
 There is no requirement in the RTL that wclk and rclk have:
-The same frequency
-A fixed frequency ratio
-A fixed phase relationship
+The same frequency,
+A fixed frequency ratio,
+A fixed phase relationship,
 Simultaneous edges
+
 ---
 
 ## 6. Reset Behavior
@@ -204,7 +205,9 @@ After one accepted write:
 1_0000 : Same memory address after one complete FIFO wrap
 
 This distinction is required for correct full and empty detection.
+
 ---
+
 ## 8. Clock-Domain Crossing Synchronization
 
 Read Pointer Synchronization into Write Domain, The read pointer is generated in the read clock domain but is required by the write-side full-detection logic.
