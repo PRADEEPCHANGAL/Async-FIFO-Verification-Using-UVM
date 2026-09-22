@@ -263,6 +263,260 @@ After a legal read:
 
 As a result: Space created by a read may not become writable until two or more wclk cycles after the read.
 
+---
+
+## 9. FIFO Memory and Storage Behavior
+
+FIFO data storage is implemented in the `fifomem` module.
+
+```verilog
+module fifomem
+#(
+    parameter DATASIZE = 8,
+    parameter ADDRSIZE = 4,
+    parameter FALLTHROUGH = "TRUE"
+);
+```
+
+The memory depth is derived from the address width:
+
+```text
+DEPTH = 2^ADDRSIZE
+```
+
+For the default FIFO configuration:
+
+```text
+DATASIZE = 8 bits
+ADDRSIZE = 4 bits
+DEPTH    = 16 entries
+```
+
+The internal storage array is declared as:
+
+```verilog
+reg [DATASIZE-1:0] mem [0:DEPTH-1];
+```
+
+For default parameters, the memory is equivalent to:
+
+```verilog
+reg [7:0] mem [0:15];
+```
+
+---
+
+### 9.1 Write Memory Port
+
+The FIFO memory write port operates in the write clock domain.
+
+```verilog
+always @(posedge wclk) begin
+    if (wclken && !wfull)
+        mem[waddr] <= wdata;
+end
+```
+
+At the top-level FIFO, the write enable is connected as:
+
+```verilog
+.wclken(winc)
+```
+
+Therefore, an actual memory write occurs only when:
+
+```systemverilog
+write_accepted = winc && !wfull;
+```
+
+For every accepted write:
+
+```text
+1. `wdata` is written to `mem[waddr]`.
+2. The write pointer advances.
+3. The write address advances for the next accepted write.
+```
+
+When the FIFO is full:
+
+```systemverilog
+winc && wfull
+```
+
+no memory write occurs.
+
+```text
+- The current memory content is preserved.
+- No unread entry is overwritten.
+- The write pointer does not advance.
+```
+
+---
+
+### 9.2 Read Memory Port
+
+The FIFO memory read port uses:
+
+```text
+Read clock : rclk
+Read enable: rclken
+Read address: raddr
+Read data  : rdata
+```
+
+The detailed behavior depends on the `FALLTHROUGH` parameter.
+
+---
+
+### 9.3 First-Word Fall-Through Read Mode
+
+The default FIFO configuration is:
+
+```verilog
+FALLTHROUGH = "TRUE"
+```
+
+In fall-through mode, the RTL read-data path is:
+
+```verilog
+assign rdata = mem[raddr];
+```
+
+This is a combinational memory read.
+
+When the FIFO is non-empty:
+
+```text
+- `raddr` points to the oldest unread FIFO entry.
+- `rdata` reflects the data stored at `mem[raddr]`.
+- The front FIFO data can be visible before `rinc` is asserted.
+```
+
+A read request does not directly enable `rdata` in fall-through mode. Instead, a valid read request advances the read pointer:
+
+```systemverilog
+read_accepted = rinc && !rempty;
+```
+
+After an accepted read:
+
+```text
+1. The read pointer advances on `posedge rclk`.
+2. `raddr` updates to the next FIFO location.
+3. `rdata` may change to reflect the next unread FIFO entry.
+```
+
+---
+
+### 9.4 Registered Read Mode
+
+When:
+
+```verilog
+FALLTHROUGH = "FALSE"
+```
+
+the FIFO uses a registered read-data path:
+
+```verilog
+always @(posedge rclk) begin
+    if (rclken)
+        rdata_r <= mem[raddr];
+end
+
+assign rdata = rdata_r;
+```
+
+In this mode:
+
+```text
+- `rdata` updates only on `posedge rclk`.
+- `rclken` must be asserted to capture memory data.
+- Read data has clocked latency.
+```
+
+The baseline verification configuration uses:
+
+```verilog
+FALLTHROUGH = "TRUE"
+```
+
+Verification of registered-read mode is planned as a separate parameterized test.
+
+---
+
+### 9.5 Memory Reset Behavior
+
+The `fifomem` module does not have a reset input.
+
+```text
+Memory entries are not explicitly cleared during `wrst_n` or `rrst_n`.
+```
+
+Therefore, after reset:
+
+```text
+- Memory contents may be unknown in simulation.
+- Memory contents may retain old values in hardware or simulation.
+- `rdata` must not be treated as valid while `rempty=1`.
+```
+
+The FIFO reset behavior is controlled by resetting pointers and status flags, not by clearing the memory array.
+
+The read-side reset state is:
+
+```text
+rempty  = 1
+arempty = 0
+```
+
+The write-side reset state is:
+
+```text
+wfull  = 0
+awfull = 0
+```
+
+---
+
+### 9.6 Read Data Validity
+
+For the baseline fall-through configuration, `rdata` is considered valid only when:
+
+```systemverilog
+rempty == 1'b0;
+```
+
+The consumer should use `rdata` only when FIFO data is available.
+
+A data word is considered consumed only when:
+
+```systemverilog
+rinc && !rempty;
+```
+
+When:
+
+```systemverilog
+rempty == 1'b1;
+```
+
+the value of `rdata` is unspecified and shall not be checked for functional correctness.
+
+---
+
+### 9.7 Memory Access Summary
+
+| Operation | Condition | Clock Domain | Expected Behavior |
+|---|---|---|---|
+| Accepted write | `winc && !wfull` | `wclk` | `wdata` is written to `mem[waddr]`. |
+| Blocked write | `winc && wfull` | `wclk` | Memory is not modified. |
+| FWFT data visibility | `rempty == 0` | Read interface | `rdata` reflects `mem[raddr]`. |
+| Accepted read | `rinc && !rempty` | `rclk` | Current front item is consumed and `raddr` advances. |
+| Blocked read | `rinc && rempty` | `rclk` | Read pointer does not advance; `rdata` is not valid for checking. |
+
+---
+
 
 
 
