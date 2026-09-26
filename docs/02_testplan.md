@@ -4,7 +4,7 @@
 
 | Version | Date | Author | Description |
 |---|---|---|---|
-| 0.1 | TBD | TBD | Initial detailed test specifications. |
+| 0.1 | - | Pradeep Changal | Initial detailed test specifications. |
 
 ---
 
