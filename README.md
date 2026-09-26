@@ -1,6 +1,7 @@
 # Async-FIFO-Verification-Using-UVM
 
 [![EDA Playground](https://img.shields.io/badge/EDA%20Playground-Run%20Simulation-blue)](https://www.edaplayground.com/x/sLCZ)
+
 UVM-based verification environment for an asynchronous FIFO design.
 
 This project verifies an asynchronous FIFO that transfers data between independent write and read clock domains using Gray-coded pointers and two-flop synchronizers.
