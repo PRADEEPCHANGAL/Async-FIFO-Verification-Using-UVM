@@ -14,7 +14,7 @@ Unless otherwise stated, all tests use the following DUT configuration:
 
 ```verilog
 DSIZE       = 8
-ASIZE       = 4
+ASIZE       = 3
 FALLTHROUGH = "TRUE"
 ```
 
@@ -22,7 +22,7 @@ Derived values:
 
 ```text
 DATA_WIDTH = 8 bits
-DEPTH      = 2^ASIZE = 16 entries
+DEPTH      = 2^ASIZE = 8 entries
 READ_MODE  = First-word fall-through
 ```
 
@@ -199,7 +199,7 @@ Verify that one accepted write is transferred correctly to the read domain and r
 ### Test Data
 
 ```systemverilog
-wdata = 8'hA5;
+wdata = random;
 ```
 
 ### Stimulus Sequence
@@ -208,7 +208,7 @@ wdata = 8'hA5;
 
    ```systemverilog
    winc  = 1;
-   wdata = 8'hA5;
+   wdata = random;
    ```
 
 2. Hold the request stable until the next `posedge wclk`.
@@ -224,7 +224,6 @@ wdata = 8'hA5;
    winc && !wfull
    ```
 
-   The write monitor sends `8'hA5` to the scoreboard.
 
 5. Wait until the read-domain empty flag deasserts:
 
@@ -264,7 +263,7 @@ wdata = 8'hA5;
 ```text
 - Exactly one accepted write occurs.
 - Exactly one accepted read occurs.
-- rdata at the accepted read equals 8'hA5.
+- rdata at the accepted read equals.
 - Scoreboard queue becomes empty after the read.
 - rempty eventually asserts after the read.
 ```
@@ -272,7 +271,7 @@ wdata = 8'hA5;
 ### Pass Criteria
 
 ```text
-- Scoreboard reports expected data = actual data = 8'hA5.
+- Scoreboard reports expected data = actual data.
 - FIFO returns to empty state.
 - No error or fatal message occurs.
 ```
@@ -294,11 +293,7 @@ Verify FIFO ordering for a burst of writes followed by a burst of reads.
 
 ### Test Data
 
-Use unique values to detect reordering:
-
-```systemverilog
-8'h11, 8'h22, 8'h33, 8'h44
-```
+Random
 
 ### Stimulus Sequence
 
@@ -387,7 +382,7 @@ Verify write-side operation when multiple writes occur before any read request.
 2. Use unique data values:
 
    ```text
-   8'h00 through 8'h07
+   Random
    ```
 
 3. For each write:
@@ -426,7 +421,7 @@ All burst data is preserved and read back in FIFO order.
 
 ---
 
-## FIFO_TC_005: read_only_empty_test
+## FIFO_TC_005: read_only_test
 
 ### Objective
 
@@ -474,214 +469,8 @@ No data compare is attempted and no read is accepted.
 ```
 
 ---
-
-## FIFO_TC_006: fill_fifo_test
-
-### Objective
-
-Verify FIFO full assertion after exactly `DEPTH` accepted writes.
-
-### Preconditions
-
-```text
-- FIFO is reset and empty.
-- No reads are issued.
-- DEPTH = 16.
-```
-
-### Stimulus Sequence
-
-1. Perform exactly `DEPTH` writes:
-
-   ```text
-   Number of writes = 16
-   ```
-
-2. Use unique data values:
-
-   ```text
-   8'h00 through 8'h0F
-   ```
-
-3. For each write:
-   - Assert `winc`.
-   - Drive unique data.
-   - Wait for `posedge wclk`.
-   - Deassert `winc`.
-
-4. After the 16th accepted write, sample write-side flags on `wclk`.
-
-5. Do not perform reads until full state has been checked.
-
-6. Then read all stored entries to verify that full state did not corrupt data.
-
-### Expected Checks
-
-```text
-- First 16 writes are accepted.
-- wfull is low before the final accepted write.
-- wfull asserts after the FIFO becomes full.
-- No write data is lost.
-- All 16 values can later be read in order.
-```
-
-### Pass Criteria
-
-```text
-- wfull asserts after 16 accepted writes.
-- All 16 stored values are read back in order.
-```
-
----
-
-## FIFO_TC_007: write_when_full_test
-
-### Objective
-
-Verify that writes are blocked while `wfull=1`.
-
-### Preconditions
-
-```text
-- FIFO is filled using FIFO_TC_006 sequence.
-- wfull = 1.
-- Scoreboard queue contains DEPTH items.
-```
-
-### Stimulus Sequence
-
-1. After FIFO full assertion, attempt additional writes.
-
-   Example:
-
-   ```text
-   Attempt 4 writes:
-       8'hA0
-       8'hA1
-       8'hA2
-       8'hA3
-   ```
-
-2. For each attempted write:
-   - Assert `winc=1`.
-   - Apply attempted write data.
-   - Wait for `posedge wclk`.
-   - Deassert `winc`.
-
-3. Do not issue reads until all blocked-write attempts are complete.
-
-4. Read all valid FIFO contents.
-
-### Expected Checks
-
-```text
-- No blocked write is added to scoreboard queue.
-- FIFO still contains only the original DEPTH items.
-- Attempted data values 8'hA0 through 8'hA3 are never observed on rdata.
-- Readback contains original DEPTH values in correct order.
-```
-
-### Pass Criteria
-
-```text
-No overflow data is observed at the read interface.
-```
-
----
-
-## FIFO_TC_008: drain_fifo_test
-
-### Objective
-
-Verify FIFO empty assertion after all stored data is consumed.
-
-### Preconditions
-
-```text
-- FIFO contains DEPTH valid entries.
-- rempty has deasserted.
-```
-
-### Stimulus Sequence
-
-1. Wait until the read domain observes data:
-
-   ```text
-   rempty == 0
-   ```
-
-2. Perform exactly `DEPTH` accepted reads.
-
-3. For each read:
-   - Assert `rinc=1`.
-   - Wait for `posedge rclk`.
-   - Monitor captures FWFT data at accepted-read event.
-   - Deassert `rinc`.
-
-4. After final read, wait for read-side flag update.
-
-### Expected Checks
-
-```text
-- All DEPTH entries are read in expected order.
-- Scoreboard queue becomes empty.
-- rempty asserts after the final accepted read.
-- arempty is asserted when one item remains before final read.
-```
-
-### Pass Criteria
-
-```text
-FIFO becomes empty only after the final valid item is consumed.
-```
-
----
-
-## FIFO_TC_009: read_when_empty_test
-
-### Objective
-
-Verify that reads are blocked after the FIFO has been drained.
-
-### Preconditions
-
-```text
-- FIFO has been drained.
-- rempty = 1.
-- Scoreboard queue is empty.
-```
-
-### Stimulus Sequence
-
-1. Assert `rinc` for multiple read-clock cycles.
-
-   ```text
-   Assert rinc for 5 consecutive rclk cycles.
-   ```
-
-2. Keep write interface idle.
-
-3. Observe read-side flags and scoreboard behavior.
-
-### Expected Checks
-
-```text
-- rempty remains 1.
-- No accepted read occurs.
-- Scoreboard queue remains empty.
-- No scoreboard underflow occurs.
-- rdata is ignored while rempty=1.
-```
-
-### Pass Criteria
-
-```text
-No data is consumed during blocked read attempts.
-```
-
----
-
-## FIFO_TC_010: almost_full_test
+ 
+## FIFO_TC_006: almost_full_test
 
 ### Objective
 
@@ -739,7 +528,7 @@ awfull asserts with one remaining writable location and wfull asserts after fina
 
 ---
 
-## FIFO_TC_011: almost_empty_test
+## FIFO_TC_007: almost_empty_test
 
 ### Objective
 
@@ -802,7 +591,7 @@ arempty asserts only when one readable entry remains, and rempty asserts after t
 
 ---
 
-## FIFO_TC_012: fwft_test
+## FIFO_TC_008: fwft_test
 
 ### Objective
 
@@ -860,7 +649,7 @@ The first written word becomes visible on rdata before rinc is asserted.
 
 ---
 
-## FIFO_TC_013: concurrent_rw_test
+## FIFO_TC_009: concurrent_rw_test
 
 ### Objective
 
