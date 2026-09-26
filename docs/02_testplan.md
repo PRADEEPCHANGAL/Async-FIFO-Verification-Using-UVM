@@ -717,7 +717,7 @@ Verify correct FIFO behavior during concurrent independent write and read activi
 
 ---
 
-## FIFO_TC_014: Clock Ratio Test
+## FIFO_TC_009: Clock Ratio Test
 
 ### Description
 
