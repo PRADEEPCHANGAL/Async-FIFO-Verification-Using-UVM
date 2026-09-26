@@ -716,3 +716,96 @@ Verify correct FIFO behavior during concurrent independent write and read activi
 ```
 
 ---
+
+## FIFO_TC_014: Clock Ratio Test
+
+### Description
+
+The asynchronous FIFO must operate correctly when `wclk` and `rclk` have unrelated frequencies.
+
+This test runs write and read traffic concurrently while applying different clock-period configurations.
+
+The test verifies that:
+```text
+- Accepted write data is eventually read in FIFO order.
+- No data is lost, duplicated, corrupted, or reordered.
+- Blocked reads and blocked writes are handled correctly.
+- FIFO drains successfully after traffic completes.
+- CDC synchronization latency does not cause incorrect FIFO behavior.
+```
+
+### Clock Configuration
+
+The top-level testbench supports configurable clock half-periods through simulation plusargs:
+
+```text
++WCLK_HALF_NS=<write_clock_half_period>
++RCLK_HALF_NS=<read_clock_half_period>
+```
+
+Clock period is calculated as:
+
+```text
+Clock Period = 2 × Clock Half Period
+```
+
+### Clock Ratio Configurations
+
+| Scenario | `WCLK_HALF_NS` | `RCLK_HALF_NS` | Write Clock Period | Read Clock Period | Expected Behavior |
+|---|---:|---:|---:|---:|---|
+| Write faster than read | `2` | `10` | `4 ns` | `20 ns` | FIFO may fill quickly. Write attempts can be blocked when `wfull=1`. |
+| Read faster than write | `10` | `2` | `20 ns` | `4 ns` | FIFO may become empty frequently. Read attempts can be blocked when `rempty=1`. |
+| Asynchronous ratio | `5` | `8` | `10 ns` | `16 ns` | Relative clock-edge alignment continuously changes. FIFO ordering must remain correct. |
+| Equal frequency | `5` | `5` | `10 ns` | `10 ns` | Concurrent traffic under equal-frequency clock operation. |
+
+### Stimulus Sequence
+
+1. Apply initial reset.
+2. Wait until both resets are released:
+
+   ```text
+   wrst_n = 1
+   rrst_n = 1
+   ```
+
+3. Verify initial FIFO reset state.
+4. Start write burst traffic.
+5. Start read burst traffic concurrently.
+6. Allow write and read operations to occur independently in their local clock domains.
+7. Wait for both traffic sequences to complete.
+8. Check scoreboard queue occupancy.
+9.  If data remains in the reference queue, issue additional reads to drain FIFO.
+10. Wait until:
+
+    ```text
+    rempty = 1
+    ```
+
+11. Check final scoreboard counts, data comparisons, queue occupancy, and FIFO status flags.
+
+### Expected Results
+
+| Check | Expected Result |
+|---|---|
+| Data integrity | Every accepted read matches the oldest accepted write. |
+| FIFO ordering | First accepted write is the first accepted read. |
+| Scoreboard data mismatch count | `0` |
+| Final scoreboard queue size | `0` |
+| Final read-side status | `rempty=1` |
+| Accepted transaction counts | Accepted reads equal accepted writes after final FIFO drain. |
+| Blocked requests | Allowed and expected depending on selected clock ratio. |
+| CDC latency | `rempty` and `wfull` may update after synchronizer delay. Immediate remote-domain flag updates are not required. |
+
+### Pass Criteria
+
+The test passes when:
+
+```text
+- No UVM error or UVM fatal message is reported.
+- No scoreboard data mismatch occurs.
+- No reference-model underflow occurs.
+- All accepted writes are eventually read after final drain.
+- Accepted read count equals accepted write count after final drain.
+- Scoreboard expected queue is empty after final drain.
+- rempty is asserted after final drain.
+```
