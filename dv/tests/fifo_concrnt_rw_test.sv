@@ -3,7 +3,7 @@
 // Description : Concurrent read/write test for asynchronous FIFO.
 //
 // Test Plan ID:
-//   FIFO_TC_013 : concurrent_rw_test
+//   FIFO_TC_009 : concurrent_rw_test
 //
 // Objective:
 //   Verify FIFO data integrity and ordering while write and read sequences run
