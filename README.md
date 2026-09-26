@@ -143,11 +143,11 @@ Read Driver  --> DUT --> Read Monitor  --> Scoreboard / Coverage
 | `FIFO_TC_002` | `fifo_single_write_read_test` | Verifies one accepted write followed by one accepted read |
 | `FIFO_TC_003` | `fifo_multiple_write_read_test` | Verifies FIFO ordering for multiple entries |
 | `FIFO_TC_004` | `fifo_write_only_test` | Verifies multiple writes without reads |
-| `FIFO_TC_005` | `fifo_read_only_empty_test` | Verifies read attempts are blocked while FIFO is empty |
+| `FIFO_TC_005` | `fifo_read_only_test` | Verifies read attempts are blocked while FIFO is empty |
 | `FIFO_TC_006` | `fifo_almost_full_test` | Verifies `awfull` and `wfull` boundary behavior |
 | `FIFO_TC_007` | `fifo_almost_empty_test` | Verifies `arempty` and `rempty` boundary behavior |
 | `FIFO_TC_008` | `fifo_fwft_test` | Verifies first-word fall-through behavior |
-| `FIFO_TC_009` | `fifo_concurrent_rw_test` | Verifies concurrent read/write data integrity |
+| `FIFO_TC_009` | `fifo_concrnt_rw_test` | Verifies concurrent read/write data integrity |
 | Advanced | `fifo_clock_ratio_test` | Verifies traffic under different write/read clock ratios |
 
 ---
@@ -165,7 +165,7 @@ async_fifo_uvm/
 |   +-- wptr_full.v
 |   +-- rptr_empty.v
 |
-+-- tb/
++-- dv/
 |   |
 |   +-- interfaces/
 |   |   +-- async_fifo_if.sv
@@ -203,7 +203,7 @@ async_fifo_uvm/
 |   |   +-- fifo_almost_full_test.sv
 |   |   +-- fifo_almost_empty_test.sv
 |   |   +-- fifo_fwft_test.sv
-|   |   +-- fifo_concurrent_rw_test.sv
+|   |   +-- fifo_concrnt_rw_test.sv
 |   |   +-- fifo_clock_ratio_test.sv
 |   |
 |   +-- packages/
@@ -355,7 +355,7 @@ This project demonstrates:
 ## Author
 
 ```text
-Name: Pradeep Changal
+Name: PRADEEP CHANGAL
 GitHub: https://github.com/PRADEEPCHANGAL
 ```
 
@@ -363,11 +363,5 @@ GitHub: https://github.com/PRADEEPCHANGAL
 
 ## License
 
-Add a license file if you plan to make the repository public.
-
-Recommended options:
-
-```text
-MIT License
-Apache License 2.0
+This project is licensed under the [MIT License](LICENSE). License 2.0
 ```
