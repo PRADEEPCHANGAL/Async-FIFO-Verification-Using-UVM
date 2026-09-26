@@ -87,62 +87,6 @@ async_fifo
 
 ---
 
-## FIFO Protocol
-
-### Write Operation
-
-A write is accepted when:
-
-```systemverilog
-write_accepted = winc && !wfull;
-```
-
-| Condition | Expected Behavior |
-|---|---|
-| `winc=1`, `wfull=0` | Data is written and write pointer advances |
-| `winc=1`, `wfull=1` | Write is blocked and pointer does not advance |
-| `winc=0` | No write operation |
-
-### Read Operation
-
-A read is accepted when:
-
-```systemverilog
-read_accepted = rinc && !rempty;
-```
-
-| Condition | Expected Behavior |
-|---|---|
-| `rinc=1`, `rempty=0` | Oldest FIFO data is consumed and read pointer advances |
-| `rinc=1`, `rempty=1` | Read is blocked and pointer does not advance |
-| `rinc=0` | No read operation |
-
----
-
-## First-Word Fall-Through Behavior
-
-The default configuration uses:
-
-```verilog
-FALLTHROUGH = "TRUE"
-```
-
-The FIFO read path is:
-
-```verilog
-assign rdata = mem[raddr];
-```
-
-Therefore:
-
-```text
-- When FIFO is non-empty, rdata shows the oldest unread entry.
-- Data can be visible before rinc is asserted.
-- A legal read consumes the currently visible word.
-- rdata is invalid / don't-care while rempty=1.
-```
-
----
 
 ## UVM Testbench Architecture
 
@@ -190,36 +134,6 @@ Read Driver  --> DUT --> Read Monitor  --> Scoreboard / Coverage
 
 ---
 
-## Scoreboard
-
-The scoreboard implements a reference FIFO using a SystemVerilog queue.
-
-```systemverilog
-bit [DSIZE-1:0] expected_q[$];
-```
-
-### Scoreboard Behavior
-
-```text
-Accepted Write:
-    expected_q.push_back(wdata)
-
-Accepted Read:
-    expected_data = expected_q.pop_front()
-    compare expected_data with DUT rdata
-```
-
-The scoreboard detects:
-
-- Data corruption
-- Data loss
-- Data duplication
-- Data reordering
-- Reference-model underflow
-- Blocked write attempts
-- Blocked read attempts
-
----
 
 ## Implemented Tests
 
@@ -230,40 +144,18 @@ The scoreboard detects:
 | `FIFO_TC_003` | `fifo_multiple_write_read_test` | Verifies FIFO ordering for multiple entries |
 | `FIFO_TC_004` | `fifo_write_only_test` | Verifies multiple writes without reads |
 | `FIFO_TC_005` | `fifo_read_only_empty_test` | Verifies read attempts are blocked while FIFO is empty |
-| `FIFO_TC_010` | `fifo_almost_full_test` | Verifies `awfull` and `wfull` boundary behavior |
-| `FIFO_TC_011` | `fifo_almost_empty_test` | Verifies `arempty` and `rempty` boundary behavior |
-| `FIFO_TC_012` | `fifo_fwft_test` | Verifies first-word fall-through behavior |
-| `FIFO_TC_013` | `fifo_concurrent_rw_test` | Verifies concurrent read/write data integrity |
+| `FIFO_TC_006` | `fifo_almost_full_test` | Verifies `awfull` and `wfull` boundary behavior |
+| `FIFO_TC_007` | `fifo_almost_empty_test` | Verifies `arempty` and `rempty` boundary behavior |
+| `FIFO_TC_008` | `fifo_fwft_test` | Verifies first-word fall-through behavior |
+| `FIFO_TC_009` | `fifo_concurrent_rw_test` | Verifies concurrent read/write data integrity |
 | Advanced | `fifo_clock_ratio_test` | Verifies traffic under different write/read clock ratios |
-
----
-
-## Functional Coverage
-
-The functional coverage model collects protocol-level coverage for:
-
-### Write Side
-
-- Accepted writes
-- Blocked writes while full
-- `wfull` state during write attempts
-- `awfull` state during write attempts
-- Write-result × full-state cross coverage
-
-### Read Side
-
-- Accepted reads
-- Blocked reads while empty
-- `rempty` state during read attempts
-- `arempty` state during read attempts
-- Read-result × empty-state cross coverage
 
 ---
 
 ## Project Structure
 
 ```text
-async-fifo-uvm/
+async_fifo_uvm/
 |
 +-- rtl/
 |   +-- async_fifo.v
@@ -274,32 +166,66 @@ async-fifo-uvm/
 |   +-- rptr_empty.v
 |
 +-- tb/
-|   +-- async_fifo_if.sv
-|   +-- fifo_transaction.sv
-|   +-- fifo_write_driver.sv
-|   +-- fifo_read_driver.sv
-|   +-- fifo_write_monitor.sv
-|   +-- fifo_read_monitor.sv
-|   +-- fifo_write_agent.sv
-|   +-- fifo_read_agent.sv
-|   +-- fifo_sb.sv
-|   +-- fifo_coverage_model.sv
-|   +-- fifo_env.sv
+|   |
+|   +-- interfaces/
+|   |   +-- async_fifo_if.sv
+|   |
+|   +-- transactions/
+|   |   +-- fifo_tranx.sv
+|   |
+|   +-- agents/
+|   |   +-- fifo_sequencers.sv
+|   |   +-- fifo_write_driver.sv
+|   |   +-- fifo_read_driver.sv
+|   |   +-- fifo_write_monitor.sv
+|   |   +-- fifo_read_monitor.sv
+|   |   +-- fifo_write_agent.sv
+|   |   +-- fifo_read_agent.sv
+|   |
+|   +-- env/
+|   |   +-- fifo_sb.sv
+|   |   +-- fifo_coverage_model.sv
+|   |   +-- fifo_env.sv
+|   |
 |   +-- sequences/
+|   |   +-- fifo_write_sequences.sv
+|   |   +-- fifo_read_sequences.sv
+|   |   +-- fifo_single_write_sequences.sv
+|   |   +-- fifo_single_read_sequences.sv
+|   |
 |   +-- tests/
-|   +-- fifo_tb.sv
+|   |   +-- fifo_base_test.sv
+|   |   +-- fifo_reset_test.sv
+|   |   +-- fifo_single_write_read_test.sv
+|   |   +-- fifo_multiple_write_read_test.sv
+|   |   +-- fifo_write_only_test.sv
+|   |   +-- fifo_read_only_empty_test.sv
+|   |   +-- fifo_almost_full_test.sv
+|   |   +-- fifo_almost_empty_test.sv
+|   |   +-- fifo_fwft_test.sv
+|   |   +-- fifo_concurrent_rw_test.sv
+|   |   +-- fifo_clock_ratio_test.sv
+|   |
+|   +-- packages/
+|   |   +-- fifo_tb_config_pkg.sv
+|   |
+|   +-- tb_top.sv
 |
 +-- docs/
 |   +-- 01_design_specification.md
 |   +-- 02_testplan.md
 |   +-- 03_testbench_architecture.md
 |
+|
 +-- scripts/
 |   +-- run_regression.sh
 |
-+-- sim.f
++-- logs/                  # Generated during regression; ignored by Git
++-- cov/                   # Generated VCS coverage database; ignored by Git
++-- coverage_report/       # Generated URG report; ignored by Git
+|
 +-- README.md
-```
+
 
 ---
 
@@ -312,46 +238,6 @@ async-fifo-uvm/
 
 ---
 
-## Compile
-
-Compile the RTL and UVM testbench with functional and RTL code coverage enabled.
-
-```bash
-vcs -full64 -sverilog \
-    -ntb_opts uvm-1.2 \
-    -f sim.f \
-    -cm line+cond+branch+tgl+fcover \
-    -cm_dir cov/async_fifo.vdb \
-    -l compile.log \
-    -o simv
-```
-
----
-
-## Run a Single Test
-
-Example: run the single write/read test.
-
-```bash
-./simv \
-  +UVM_TESTNAME=fifo_single_write_read_test \
-  -cm_dir cov/async_fifo.vdb \
-  -cm_name fifo_single_write_read_test \
-  | tee logs/fifo_single_write_read_test.log
-```
-
-Check for errors:
-
-```bash
-grep -nE "UVM_ERROR|UVM_FATAL" \
-  logs/fifo_single_write_read_test.log
-```
-
-View scoreboard summary:
-
-```bash
-grep -A 15 "FIFO SCOREBOARD SUMMARY" \
-  logs/fifo_single_write_read_test.log
 ```
 
 ---
@@ -385,36 +271,6 @@ coverage_report/
 
 ---
 
-## Run Clock-Ratio Test
-
-### Write Faster Than Read
-
-```bash
-./simv \
-  +UVM_TESTNAME=fifo_clock_ratio_test \
-  +WCLK_HALF_NS=2 \
-  +RCLK_HALF_NS=10
-```
-
-### Read Faster Than Write
-
-```bash
-./simv \
-  +UVM_TESTNAME=fifo_clock_ratio_test \
-  +WCLK_HALF_NS=10 \
-  +RCLK_HALF_NS=2
-```
-
-### Asynchronous Ratio
-
-```bash
-./simv \
-  +UVM_TESTNAME=fifo_clock_ratio_test \
-  +WCLK_HALF_NS=5 \
-  +RCLK_HALF_NS=8
-```
-
----
 
 ## Generate Coverage Report
 
@@ -496,28 +352,11 @@ This project demonstrates:
 
 ---
 
-## Future Improvements
-
-- Write-when-full test
-- Full recovery after read test
-- Empty recovery after write test
-- Pointer wraparound stress test
-- Constrained-random read/write sequences
-- Midstream reset test with active traffic
-- Separate write/read reset testing
-- Registered-read mode verification with `FALLTHROUGH="FALSE"`
-- Assertion-based verification using SVA
-- Parameterized regression for multiple `DSIZE` and `ASIZE` values
-
----
-
 ## Author
 
-Add your name and GitHub profile here.
-
 ```text
-Name: <Your Name>
-GitHub: https://github.com/<your-github-username>
+Name: Pradeep Changal
+GitHub: https://github.com/PRADEEPCHANGAL
 ```
 
 ---
