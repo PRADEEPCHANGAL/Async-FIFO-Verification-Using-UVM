@@ -3,7 +3,7 @@
 // Description : Almost-full and full flag test for asynchronous FIFO.
 //
 // Test Plan ID:
-//   FIFO_TC_010 : almost_full_test
+//   FIFO_TC_006 : almost_full_test
 //
 // Objective:
 //   Verify that:
