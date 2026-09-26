@@ -119,6 +119,10 @@ fifo_tb
         +-- fifo_coverage_model
 ```
 
+ NOTE: Use Dark Theme to see diagram properly
+ 
+<img width="1044" height="804" alt="tb drawio" src="https://github.com/user-attachments/assets/1460db9c-5fec-4f66-b05a-e0e4fb1bd0b0" />
+
 ### Data Flow
 
 ```text
