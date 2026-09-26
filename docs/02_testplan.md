@@ -717,9 +717,9 @@ Verify correct FIFO behavior during concurrent independent write and read activi
 
 ---
 
-## FIFO_TC_009: Clock Ratio Test
+## FIFO_TC_010: Clock Ratio Test
 
-### Description
+### Objective
 
 The asynchronous FIFO must operate correctly when `wclk` and `rclk` have unrelated frequencies.
 
