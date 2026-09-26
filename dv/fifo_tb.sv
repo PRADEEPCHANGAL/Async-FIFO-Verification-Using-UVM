@@ -107,7 +107,7 @@ async_fifo#(.DSIZE(DSIZE),
 initial begin
     uvm_config_db#(virtual async_fifo_if)::set(null,"*","vif",vif);
   
-  run_test("fifo_multiple_write_read_test");
+  run_test("fifo_base_test");
 
   `uvm_info("FIFO_TB", $sformatf ("Test is done"), UVM_LOW)
 
