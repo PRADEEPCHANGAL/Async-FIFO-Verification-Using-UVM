@@ -37,6 +37,7 @@ A separate write and read agent is required because the FIFO has separate write 
 ## 2. Testbench Architecture Diagram
 
  NOTE: Use Dark Theme to see diagram properly
+ 
 <img width="1044" height="804" alt="tb drawio" src="https://github.com/user-attachments/assets/1460db9c-5fec-4f66-b05a-e0e4fb1bd0b0" />
 
 
@@ -111,16 +112,16 @@ The current clock generation is:
 logic wclk = 0;
 logic rclk = 0;
 
-always #10 wclk = ~wclk;
-always #10 rclk = ~rclk;
+always #5 wclk = ~wclk;
+always #7 rclk = ~rclk;
 ```
 
 Current clock timing:
 
 | Clock | Half Period | Full Period |
 |---|---:|---:|
-| `wclk` | 10 ns | 20 ns |
-| `rclk` | 10 ns | 20 ns |
+| `wclk` | 5 ns | 10 ns |
+| `rclk` | 7 ns | 14 ns |
 
 ---
 
