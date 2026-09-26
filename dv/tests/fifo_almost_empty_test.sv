@@ -3,7 +3,7 @@
 // Description : Almost-empty and empty flag test for asynchronous FIFO.
 //
 // Test Plan ID:
-//   FIFO_TC_011 : almost_empty_test
+//   FIFO_TC_007 : almost_empty_test
 //
 // Objective:
 //   Verify that:
