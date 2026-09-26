@@ -4,7 +4,7 @@
 
 | Version | Date | Author | Description |
 |---|---|---|---|
-| 0.1 | TBD | TBD | Initial UVM testbench architecture based on current implementation. |
+| 0.1 | - | Pradeep Changal | Initial UVM testbench architecture based on current implementation. |
 
 ---
 
@@ -36,66 +36,9 @@ A separate write and read agent is required because the FIFO has separate write 
 
 ## 2. Testbench Architecture Diagram
 
-```text
-                               +----------------------------------+
-                               |             fifo_tb              |
-                               |                                  |
-                               |  - wclk generation               |
-                               |  - rclk generation               |
-                               |  - reset control                 |
-                               |  - run_test("fifo_base_test")    |
-                               +----------------+-----------------+
-                                                |
-                                                |
-                     +--------------------------+--------------------------+
-                     |                                                     |
-                     v                                                     v
-       +---------------------------+                       +---------------------------+
-       |     async_fifo_if intf    |                       |      async_fifo DUT       |
-       |                           |<--------------------->|                           |
-       |  Write-side signals       |                       |  Write clock domain        |
-       |  Read-side signals        |                       |  Read clock domain         |
-       +-------------+-------------+                       +---------------------------+
-                     ^
-                     |
-                     | virtual interface through uvm_config_db
-                     |
-       +-------------+-----------------------------------------------------+
-       |                         fifo_base_test                            |
-       |                                                                   |
-       |  +-------------------------------------------------------------+  |
-       |  |                         fifo_env                            |  |
-       |  |                                                             |  |
-       |  |  +---------------------+      +-------------------------+  |  |
-       |  |  |  fifo_write_agent   |      |     fifo_read_agent     |  |  |
-       |  |  |                     |      |                         |  |  |
-       |  |  |  +---------------+  |      |  +-------------------+  |  |  |
-       |  |  |  | write seqr    |  |      |  | read seqr         |  |  |  |
-       |  |  |  | wseqr         |  |      |  | rseqr             |  |  |  |
-       |  |  |  +-------+-------+  |      |  +--------+----------+  |  |  |
-       |  |  |          |          |      |           |             |  |  |
-       |  |  |  +-------v-------+  |      |  +--------v----------+  |  |  |
-       |  |  |  | write driver  |  |      |  | read driver       |  |  |  |
-       |  |  |  | wdrv          |  |      |  | rdrv              |  |  |  |
-       |  |  |  +---------------+  |      |  +-------------------+  |  |  |
-       |  |  |                     |      |                         |  |  |
-       |  |  |  +---------------+  |      |  +-------------------+  |  |  |
-       |  |  |  | write monitor |--+------+-> read monitor       |  |  |  |
-       |  |  |  | wmon          |  |      |  | rmon              |  |  |  |
-       |  |  |  +-------+-------+  |      |  +--------+----------+  |  |  |
-       |  |  +----------|----------+      +-----------|-------------+  |  |
-       |  |             |                             |                |  |
-       |  |             | write transactions          | read transactions|
-       |  |             v                             v                |  |
-       |  |       +-------------------------------------------------+   |  |
-       |  |       |                   fifo_sb                       |   |  |
-       |  |       |                                                 |   |  |
-       |  |       |  sb_export_write     sb_export_read             |   |  |
-       |  |       |  Reference FIFO queue and data comparison       |   |  |
-       |  |       +-------------------------------------------------+   |  |
-       |  +-------------------------------------------------------------+  |
-       +-------------------------------------------------------------------+
-```
+<img width="1044" height="804" alt="tb drawio" src="https://github.com/user-attachments/assets/94691a2f-6378-430a-a08b-48548746edda" />
+
+                              
 
 ---
 
