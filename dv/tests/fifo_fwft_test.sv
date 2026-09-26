@@ -3,7 +3,7 @@
 // Description : First-Word Fall-Through (FWFT) test for asynchronous FIFO.
 //
 // Test Plan ID:
-//   FIFO_TC_012 : fwft_test
+//   FIFO_TC_008 : fwft_test
 //
 // DUT Configuration:
 //   FALLTHROUGH = "TRUE"
