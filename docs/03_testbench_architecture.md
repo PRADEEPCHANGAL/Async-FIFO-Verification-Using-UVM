@@ -36,7 +36,9 @@ A separate write and read agent is required because the FIFO has separate write 
 
 ## 2. Testbench Architecture Diagram
 
-<img width="1044" height="804" alt="tb drawio" src="https://github.com/user-attachments/assets/94691a2f-6378-430a-a08b-48548746edda" />
+ NOTE: Use Dark Theme to see diagram properly
+<img width="1044" height="804" alt="tb drawio" src="https://github.com/user-attachments/assets/1460db9c-5fec-4f66-b05a-e0e4fb1bd0b0" />
+
 
                               
 
